@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordPress Configuration</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container config-window">
+        <header>
+            <h1>⚙️ WordPress Configuration</h1>
+            <p>Configure your WordPress connection settings</p>
+        </header>
+
+        <main>
+            <!-- Configuration Section -->
+            <section class="config-section">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="remote-url">WordPress URL:</label>
+                        <input type="text" id="remote-url" placeholder="https://yoursite.com/wp-json/wp/v2" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="remote-user">Username:</label>
+                        <input type="text" id="remote-user" placeholder="your-username" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="remote-password">App Password:</label>
+                        <input type="password" id="remote-password" placeholder="xxxx xxxx xxxx xxxx" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="scan-dir">Scan Directory:</label>
+                        <div class="input-with-button">
+                            <input type="text" id="scan-dir" placeholder="Select directory..." readonly />
+                            <button id="select-dir-btn" class="btn-secondary">📁 Browse</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="record-file">Record File:</label>
+                        <div class="input-with-button">
+                            <input type="text" id="record-file" placeholder="published_records.json" />
+                            <button id="select-file-btn" class="btn-secondary">📄 Browse</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button id="save-config-btn" class="btn-primary">💾 Save Config</button>
+                    <button id="test-connection-btn" class="btn-secondary">🔗 Test Connection</button>
+                    <button id="close-config-btn" class="btn-secondary">❌ Close</button>
+                </div>
+            </section>
+
+            <!-- Status Section -->
+            <section class="status-section">
+                <div id="config-status" class="status-message"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="config.js"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown WordPress Publisher</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 Markdown WordPress Publisher</h1>
+            <p>Easily publish your Markdown files to WordPress</p>
+        </header>
+
+        <main>
+            <!-- Quick Actions Section -->
+            <section class="actions-section">
+                <h2>🚀 Quick Actions</h2>
+                <div class="button-group">
+                    <button id="open-config-btn" class="btn-primary">⚙️ Configuration</button>
+                    <button id="scan-files-btn" class="btn-secondary">🔍 Scan Files</button>
+                </div>
+                <div id="config-status" class="status-message"></div>
+            </section>
+
+            <!-- File Management Section -->
+            <section class="files-section">
+                <h2>📂 Files</h2>
+                <div class="button-group">
+                    <button id="publish-selected-btn" class="btn-success" disabled>🚀 Publish Selected</button>
+                    <button id="publish-all-btn" class="btn-success" disabled>📤 Publish All</button>
+                </div>
+                
+                <div class="files-container">
+                    <div class="files-header">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="select-all-checkbox">
+                            <span class="checkmark"></span>
+                            Select All
+                        </label>
+                        <span class="file-count">0 files found</span>
+                    </div>
+                    
+                    <div id="files-list" class="files-list">
+                        <div class="no-files">
+                            <p>No files scanned yet. Click "Scan Files" to begin.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Progress Section -->
+            <section class="progress-section" style="display: none;">
+                <h2>📊 Progress</h2>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="progress-percentage">0%</span>
+                        <span id="progress-current">Ready to start</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Log Section -->
+            <section class="log-section">
+                <h2>📋 Log</h2>
+                <div class="log-container">
+                    <div id="log-output" class="log-output">
+                        <div class="log-entry info">
+                            <span class="log-time">[Ready]</span>
+                            <span class="log-message">Application started. Configure your settings and scan for files.</span>
+                        </div>
+                    </div>
+                    <div class="log-controls">
+                        <button id="clear-log-btn" class="btn-secondary">🗑️ Clear Log</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

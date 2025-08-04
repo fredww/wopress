@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown WordPress Publisher - Web Version</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        main {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        section {
+            padding: 25px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        section:last-child {
+            border-bottom: none;
+        }
+
+        section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .form-group input, .form-group textarea {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .log-container {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .log-output {
+            height: 200px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .log-time {
+            color: #666;
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .log-entry.success .log-message {
+            color: #28a745;
+        }
+
+        .log-entry.error .log-message {
+            color: #dc3545;
+        }
+
+        .log-entry.info .log-message {
+            color: #17a2b8;
+        }
+
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+            width: 0%;
+        }
+
+        .file-list {
+            margin-top: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #f8f9fa;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-item.selected {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+
+        .file-item.published {
+            background: #e8f5e8;
+            border-left: 4px solid #4caf50;
+        }
+
+        .file-item.error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .file-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 2px;
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .file-checkbox {
+            margin-right: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .file-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .file-actions {
+                margin-top: 10px;
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 Markdown WordPress Publisher</h1>
+            <p>Web Version - Easily publish your Markdown content to WordPress</p>
+        </header>
+
+        <main>
+            <!-- Configuration Section -->
+            <section class="config-section">
+                <h2>⚙️ Configuration</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="remote-url">WordPress URL:</label>
+                        <input type="text" id="remote-url" placeholder="https://yoursite.com/wp-json/wp/v2" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="remote-user">Username:</label>
+                        <input type="text" id="remote-user" placeholder="your-username" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="remote-password">App Password:</label>
+                        <input type="password" id="remote-password" placeholder="xxxx xxxx xxxx xxxx" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Default Category:</label>
+                        <input type="text" id="category" placeholder="uncategorized" />
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button id="save-config-btn" class="btn btn-primary">💾 Save Config</button>
+                    <button id="test-connection-btn" class="btn btn-primary">🔗 Test Connection</button>
+                </div>
+            </section>
+
+            <!-- File Upload Section -->
+            <section class="file-section">
+                <h2>📁 Batch Upload</h2>
+                <div class="form-group">
+                    <label for="file-input">Select Markdown files (multiple files supported):</label>
+                    <input type="file" id="file-input" multiple accept=".md,.markdown,.txt" />
+                </div>
+                
+                <div id="file-list" class="file-list"></div>
+                
+                <div class="button-group">
+                    <button id="scan-files-btn" class="btn btn-primary">📋 Preview Files</button>
+                    <button id="publish-all-btn" class="btn btn-success">🚀 Publish All</button>
+                    <button id="clear-files-btn" class="btn btn-primary">🗑️ Clear Files</button>
+                </div>
+            </section>
+
+            <!-- Markdown Input Section -->
+            <section class="markdown-section">
+                <h2>📝 Single Article</h2>
+                <div class="form-group">
+                    <label for="markdown-content">Or paste your Markdown content here:</label>
+                    <textarea id="markdown-content" rows="10" placeholder="# Your Article Title
+
+Your markdown content here...
+
+## Section 1
+
+Content..."></textarea>
+                </div>
+                
+                <div class="button-group">
+                    <button id="publish-single-btn" class="btn btn-success">🚀 Publish Single Article</button>
+                    <button id="clear-content-btn" class="btn btn-primary">🗑️ Clear Content</button>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <div id="progress-text">Publishing...</div>
+                </div>
+            </section>
+
+            <!-- Log Section -->
+            <section class="log-section">
+                <h2>📋 Log</h2>
+                <div class="log-container">
+                    <div id="log-output" class="log-output">
+                        <div class="log-entry info">
+                            <span class="log-time">[Ready]</span>
+                            <span class="log-message">Web version ready. Configure your settings and paste your Markdown content.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        class MarkdownPublisher {
+            constructor() {
+                this.config = this.loadConfig();
+                this.initializeElements();
+                this.bindEvents();
+                this.populateConfigForm();
+            }
+
+            initializeElements() {
+                this.remoteUrlInput = document.getElementById('remote-url');
+                this.remoteUserInput = document.getElementById('remote-user');
+                this.remotePasswordInput = document.getElementById('remote-password');
+                this.categoryInput = document.getElementById('category');
+                this.markdownContent = document.getElementById('markdown-content');
+                
+                this.fileInput = document.getElementById('file-input');
+                this.fileList = document.getElementById('file-list');
+                
+                this.saveConfigBtn = document.getElementById('save-config-btn');
+                this.testConnectionBtn = document.getElementById('test-connection-btn');
+                this.scanFilesBtn = document.getElementById('scan-files-btn');
+                this.publishAllBtn = document.getElementById('publish-all-btn');
+                this.clearFilesBtn = document.getElementById('clear-files-btn');
+                this.publishSingleBtn = document.getElementById('publish-single-btn');
+                this.clearContentBtn = document.getElementById('clear-content-btn');
+                
+                this.logOutput = document.getElementById('log-output');
+                this.progressContainer = document.querySelector('.progress-container');
+                this.progressFill = document.querySelector('.progress-fill');
+                this.progressText = document.getElementById('progress-text');
+                
+                this.selectedFiles = [];
+            }
+
+            bindEvents() {
+                this.saveConfigBtn.addEventListener('click', () => this.saveConfig());
+                this.testConnectionBtn.addEventListener('click', () => this.testConnection());
+                this.scanFilesBtn.addEventListener('click', () => this.scanFiles());
+                this.publishAllBtn.addEventListener('click', () => this.publishAllFiles());
+                this.clearFilesBtn.addEventListener('click', () => this.clearFiles());
+                this.publishSingleBtn.addEventListener('click', () => this.publishSingleContent());
+                this.clearContentBtn.addEventListener('click', () => this.clearContent());
+                
+                this.fileInput.addEventListener('change', (e) => this.handleFileSelection(e));
+            }
+
+            loadConfig() {
+                const saved = localStorage.getItem('wp-publisher-config');
+                return saved ? JSON.parse(saved) : {};
+            }
+
+            populateConfigForm() {
+                this.remoteUrlInput.value = this.config.remote_url || '';
+                this.remoteUserInput.value = this.config.remote_user || '';
+                this.remotePasswordInput.value = this.config.remote_app_password || '';
+                this.categoryInput.value = this.config.category || 'uncategorized';
+            }
+
+            saveConfig() {
+                this.config = {
+                    remote_url: this.remoteUrlInput.value.trim(),
+                    remote_user: this.remoteUserInput.value.trim(),
+                    remote_app_password: this.remotePasswordInput.value.trim(),
+                    category: this.categoryInput.value.trim() || 'uncategorized'
+                };
+
+                if (!this.config.remote_url || !this.config.remote_user || !this.config.remote_app_password) {
+                    this.log('Please fill in all required fields', 'error');
+                    return;
+                }
+
+                localStorage.setItem('wp-publisher-config', JSON.stringify(this.config));
+                this.log('Configuration saved successfully', 'success');
+            }
+
+            async testConnection() {
+                if (!this.validateConfig()) return;
+
+                this.testConnectionBtn.disabled = true;
+                this.testConnectionBtn.textContent = '🔄 Testing...';
+
+                try {
+                    const response = await fetch(`${this.config.remote_url}/posts?per_page=1`, {
+                        headers: {
+                            'Authorization': 'Basic ' + btoa(`${this.config.remote_user}:${this.config.remote_app_password}`),
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        this.log('✅ Connection test successful!', 'success');
+                    } else {
+                        this.log(`❌ Connection test failed: ${response.status} ${response.statusText}`, 'error');
+                    }
+                } catch (error) {
+                    this.log(`❌ Connection test error: ${error.message}`, 'error');
+                } finally {
+                    this.testConnectionBtn.disabled = false;
+                    this.testConnectionBtn.textContent = '🔗 Test Connection';
+                }
+            }
+
+            handleFileSelection(event) {
+                const files = Array.from(event.target.files);
+                this.selectedFiles = files.filter(file => 
+                    file.name.endsWith('.md') || 
+                    file.name.endsWith('.markdown') || 
+                    file.name.endsWith('.txt')
+                );
+                
+                if (this.selectedFiles.length === 0) {
+                    this.log('No valid Markdown files selected', 'error');
+                    return;
+                }
+                
+                this.log(`Selected ${this.selectedFiles.length} Markdown files`, 'info');
+                this.renderFileList();
+            }
+
+            async scanFiles() {
+                if (this.selectedFiles.length === 0) {
+                    this.log('Please select some files first', 'error');
+                    return;
+                }
+
+                this.scanFilesBtn.disabled = true;
+                this.scanFilesBtn.textContent = '🔄 Scanning...';
+
+                try {
+                    for (let file of this.selectedFiles) {
+                        const content = await this.readFileContent(file);
+                        const { title } = this.parseMarkdown(content);
+                        file.parsedTitle = title;
+                        file.content = content;
+                    }
+                    
+                    this.renderFileList();
+                    this.log(`✅ Scanned ${this.selectedFiles.length} files successfully`, 'success');
+                } catch (error) {
+                    this.log(`❌ Error scanning files: ${error.message}`, 'error');
+                } finally {
+                    this.scanFilesBtn.disabled = false;
+                    this.scanFilesBtn.textContent = '📋 Preview Files';
+                }
+            }
+
+            async publishAllFiles() {
+                if (!this.validateConfig()) return;
+                
+                const filesToPublish = this.selectedFiles.filter(file => file.selected !== false);
+                if (filesToPublish.length === 0) {
+                    this.log('No files selected for publishing', 'error');
+                    return;
+                }
+
+                this.publishAllBtn.disabled = true;
+                this.publishAllBtn.textContent = '🔄 Publishing...';
+                this.showProgress();
+
+                let successCount = 0;
+                let errorCount = 0;
+
+                for (let i = 0; i < filesToPublish.length; i++) {
+                    const file = filesToPublish[i];
+                    const progress = ((i + 1) / filesToPublish.length) * 100;
+                    this.updateProgress(progress, `Publishing: ${file.name}`);
+
+                    try {
+                        await this.publishFile(file);
+                        file.status = 'published';
+                        successCount++;
+                        this.log(`✅ Published: "${file.parsedTitle || file.name}"`, 'success');
+                    } catch (error) {
+                        file.status = 'error';
+                        file.error = error.message;
+                        errorCount++;
+                        this.log(`❌ Failed to publish "${file.name}": ${error.message}`, 'error');
+                    }
+                    
+                    this.renderFileList();
+                    await this.delay(500);
+                }
+
+                this.log(`📊 Batch publish completed: ${successCount} success, ${errorCount} errors`, 'info');
+                
+                this.publishAllBtn.disabled = false;
+                this.publishAllBtn.textContent = '🚀 Publish All';
+                this.hideProgress();
+            }
+
+            async publishFile(file) {
+                const content = file.content || await this.readFileContent(file);
+                const { title, htmlContent } = this.parseMarkdown(content);
+                const categoryId = await this.getCategoryId(this.config.category);
+
+                const postData = {
+                    title: title,
+                    content: htmlContent,
+                    status: 'publish',
+                    categories: [categoryId]
+                };
+
+                const response = await fetch(`${this.config.remote_url}/posts`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa(`${this.config.remote_user}:${this.config.remote_app_password}`),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(postData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(`${response.status} ${response.statusText}: ${error}`);
+                }
+
+                const result = await response.json();
+                file.publishedUrl = result.link;
+                return result;
+            }
+
+            async publishSingleContent() {
+                if (!this.validateConfig()) return;
+
+                const content = this.markdownContent.value.trim();
+                if (!content) {
+                    this.log('Please enter some Markdown content', 'error');
+                    return;
+                }
+
+                this.publishSingleBtn.disabled = true;
+                this.publishSingleBtn.textContent = '🔄 Publishing...';
+                this.showProgress();
+
+                try {
+                    const { title, htmlContent } = this.parseMarkdown(content);
+                    const categoryId = await this.getCategoryId(this.config.category);
+
+                    const postData = {
+                        title: title,
+                        content: htmlContent,
+                        status: 'publish',
+                        categories: [categoryId]
+                    };
+
+                    const response = await fetch(`${this.config.remote_url}/posts`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Basic ' + btoa(`${this.config.remote_user}:${this.config.remote_app_password}`),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(postData)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        this.log(`✅ Successfully published: "${title}"`, 'success');
+                        this.log(`📄 Post URL: ${result.link}`, 'info');
+                    } else {
+                        const error = await response.text();
+                        this.log(`❌ Failed to publish: ${response.status} ${response.statusText}`, 'error');
+                        this.log(`Error details: ${error}`, 'error');
+                    }
+                } catch (error) {
+                    this.log(`❌ Publishing error: ${error.message}`, 'error');
+                } finally {
+                    this.publishSingleBtn.disabled = false;
+                    this.publishSingleBtn.textContent = '🚀 Publish Single Article';
+                    this.hideProgress();
+                }
+            }
+
+            parseMarkdown(content) {
+                const h1Match = content.match(/^#\s+(.+)$/m);
+                const title = h1Match ? h1Match[1].trim() : 'Untitled Post';
+                
+                const markdownContent = h1Match ? content.replace(/^#\s+.+$/m, '').trim() : content;
+                
+                let htmlContent = markdownContent
+                    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+                    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+                    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                    .replace(/`(.+?)`/g, '<code>$1</code>')
+                    .replace(/\n\n/g, '</p><p>')
+                    .replace(/\n/g, '<br>');
+                
+                htmlContent = '<p>' + htmlContent + '</p>';
+                htmlContent = htmlContent.replace(/<p><\/p>/g, '');
+
+                return { title, htmlContent };
+            }
+
+            async getCategoryId(categoryName) {
+                try {
+                    const response = await fetch(`${this.config.remote_url}/categories?search=${encodeURIComponent(categoryName)}`, {
+                        headers: {
+                            'Authorization': 'Basic ' + btoa(`${this.config.remote_user}:${this.config.remote_app_password}`),
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const categories = await response.json();
+                        const existingCategory = categories.find(cat => cat.name === categoryName);
+                        if (existingCategory) {
+                            return existingCategory.id;
+                        }
+                    }
+
+                    const createResponse = await fetch(`${this.config.remote_url}/categories`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Basic ' + btoa(`${this.config.remote_user}:${this.config.remote_app_password}`),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: categoryName,
+                            slug: categoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+                        })
+                    });
+
+                    if (createResponse.ok) {
+                        const newCategory = await createResponse.json();
+                        this.log(`✅ Created category: "${categoryName}"`, 'success');
+                        return newCategory.id;
+                    }
+                } catch (error) {
+                    this.log(`Warning: Could not create category, using default`, 'error');
+                }
+
+                return 1;
+            }
+
+            renderFileList() {
+                if (this.selectedFiles.length === 0) {
+                    this.fileList.innerHTML = '<p style="padding: 20px; text-align: center; color: #666;">No files selected</p>';
+                    return;
+                }
+
+                const html = this.selectedFiles.map((file, index) => {
+                    const statusClass = file.status || '';
+                    const statusIcon = file.status === 'published' ? '✅' : 
+                                     file.status === 'error' ? '❌' : '📄';
+                    
+                    return `
+                        <div class="file-item ${statusClass}" data-index="${index}">
+                            <input type="checkbox" class="file-checkbox" 
+                                   ${file.selected !== false ? 'checked' : ''} 
+                                   onchange="publisher.toggleFileSelection(${index})">
+                            <div class="file-info">
+                                <div class="file-name">${statusIcon} ${file.name}</div>
+                                ${file.parsedTitle ? `<div class="file-title">Title: ${file.parsedTitle}</div>` : ''}
+                                <div class="file-size">Size: ${this.formatFileSize(file.size)}</div>
+                                ${file.publishedUrl ? `<div class="file-size"><a href="${file.publishedUrl}" target="_blank">View Published Post</a></div>` : ''}
+                                ${file.error ? `<div class="file-size" style="color: #f44336;">Error: ${file.error}</div>` : ''}
+                            </div>
+                            <div class="file-actions">
+                                <button class="btn btn-small btn-primary" onclick="publisher.previewFile(${index})">👁️ Preview</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                this.fileList.innerHTML = html;
+            }
+
+            toggleFileSelection(index) {
+                this.selectedFiles[index].selected = !this.selectedFiles[index].selected;
+                this.renderFileList();
+            }
+
+            async previewFile(index) {
+                const file = this.selectedFiles[index];
+                try {
+                    const content = file.content || await this.readFileContent(file);
+                    const { title, htmlContent } = this.parseMarkdown(content);
+                    
+                    const previewWindow = window.open('', '_blank', 'width=800,height=600');
+                    previewWindow.document.write(`
+                        <html>
+                            <head>
+                                <title>Preview: ${title}</title>
+                                <style>
+                                    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+                                    h1, h2, h3 { color: #333; }
+                                    code { background: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
+                                    pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+                                </style>
+                            </head>
+                            <body>
+                                <h1>${title}</h1>
+                                <hr>
+                                ${htmlContent}
+                            </body>
+                        </html>
+                    `);
+                    previewWindow.document.close();
+                } catch (error) {
+                    this.log(`Error previewing file: ${error.message}`, 'error');
+                }
+            }
+
+            clearFiles() {
+                this.selectedFiles = [];
+                this.fileInput.value = '';
+                this.renderFileList();
+                this.log('File list cleared', 'info');
+            }
+
+            clearContent() {
+                this.markdownContent.value = '';
+                this.log('Content cleared', 'info');
+            }
+
+            async readFileContent(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = (e) => reject(new Error('Failed to read file'));
+                    reader.readAsText(file);
+                });
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            showProgress() {
+                this.progressContainer.style.display = 'block';
+                this.progressFill.style.width = '100%';
+            }
+
+            updateProgress(percentage, text) {
+                this.progressContainer.style.display = 'block';
+                this.progressFill.style.width = percentage + '%';
+                this.progressText.textContent = text || 'Publishing...';
+            }
+
+            hideProgress() {
+                setTimeout(() => {
+                    this.progressContainer.style.display = 'none';
+                    this.progressFill.style.width = '0%';
+                    this.progressText.textContent = 'Publishing...';
+                }, 2000);
+            }
+
+            validateConfig() {
+                if (!this.config.remote_url || !this.config.remote_user || !this.config.remote_app_password) {
+                    this.log('Please configure WordPress connection settings first', 'error');
+                    return false;
+                }
+                return true;
+            }
+
+            log(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${type}`;
+                logEntry.innerHTML = `
+                    <span class="log-time">[${timestamp}]</span>
+                    <span class="log-message">${message}</span>
+                `;
+                
+                this.logOutput.appendChild(logEntry);
+                this.logOutput.scrollTop = this.logOutput.scrollHeight;
+            }
+        }
+
+        // Initialize the application
+        let publisher;
+        document.addEventListener('DOMContentLoaded', () => {
+            publisher = new MarkdownPublisher();
+        });
+    </script>
+</body>
+</html>
